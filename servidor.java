@@ -34,7 +34,8 @@ public class servidor {
         conexion=servidor.accept();
         System.out.println("Conexion establecida");
         entrada=new BufferedReader(new InputStreamReader(conexion.getInputStream()));
-        System.out.println(entrada.readLine());
+        while ((recibido = entrada.readLine())!= null)
+        System.out.println(recibido);
 
 
       }
