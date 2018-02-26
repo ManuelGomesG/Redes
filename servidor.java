@@ -7,11 +7,6 @@ public class servidor {
 
 
 
-
-
-
-
-
   public static void main(String[] args) {
 
     final int PUERTO = 5000;
@@ -20,24 +15,32 @@ public class servidor {
 
     DataOutputStream salida;
     BufferedReader entrada;
-    BufferedOutputStream buffsalida;
-    BufferedInputStream buffentrada;
+    InputStreamReader buffentrada;
+    PrintStream respuesta;
     String recibido;
+
+    String menu = " 1) ESTADO_DESCARGAS \n 2) LISTA_LIBROS \n 3) SOLICITUD <libro> \n 4) LIBROS_DESCARGADOSxSERVIDOR  \n";
 
     try {
 
       servidor = new ServerSocket(PUERTO);
+      System.out.println("Esperando conexion");
+      while(true){
+      conexion = servidor.accept();
+      System.out.println("Conexion establecida");
       while(true){
 
-        conexion=new Socket();
-        System.out.println("Esperando conexion");
-        conexion=servidor.accept();
-        System.out.println("Conexion establecida");
-        entrada=new BufferedReader(new InputStreamReader(conexion.getInputStream()));
-        while ((recibido = entrada.readLine())!= null)
-        System.out.println(recibido);
+      buffentrada = new InputStreamReader(conexion.getInputStream());
+      entrada     = new BufferedReader(buffentrada);
+      recibido    = entrada.readLine();
 
+      System.out.println(recibido);
 
+      if (recibido != null) {
+        respuesta   = new PrintStream(conexion.getOutputStream());
+        respuesta.printf(menu);
+        }
+      }
       }
 
     }catch(Exception e)
