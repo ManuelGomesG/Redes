@@ -43,7 +43,8 @@ public class servidor {
           if ((recibido = entrada.readLine()) != null) {
             System.out.println(recibido);
             System.out.println(recibido);
-            if (recibido.equals("Solicitud libro")){
+            String[] palabras = recibido.split(" ");
+            if (palabras[0].equalsIgnoreCase("Solicitud")){
 
               try{
                 ServerSocket servidor2 = new ServerSocket(1234);
@@ -51,14 +52,16 @@ public class servidor {
                   System.out.println("Esperando conexion en el nuevo socket\n");
                   Socket conexion2 = servidor2.accept();
                   System.out.println("Conectado en el nuevo socket\n");
-                  final File archivoLocal = new File("imagen_share.png");
+                  String nombreArchivo = "";
+                  nombreArchivo = recibido.substring(10);
+                  final File archivoLocal = new File("./libros/" + nombreArchivo + ".pdf");
                   BufferedInputStream entradaArchivo = new BufferedInputStream(new FileInputStream(archivoLocal));
                   OutputStream pt;
                   byteArray = new byte[8192];
                   pt = conexion2.getOutputStream();
                   while ((in = entradaArchivo.read(byteArray))!=-1){
-                    System.out.printf("Iniciando transferencia de archivo");
-                    respuesta.printf("Iniciando transferencia de archivo");
+                    System.out.printf("Iniciando transferencia de archivo\n");
+                    respuesta.printf("Iniciando transferencia de archivo\n");
                     pt.write(byteArray,0,in);    
                   }
                   System.out.println("Termino transferencia");
@@ -68,8 +71,20 @@ public class servidor {
                   System.out.println("Hubo un error al conectarse al segundo socket "+e.getMessage());
               }
             }
-                 
+            else if (palabras[0].equalsIgnoreCase("Lista_libros")){
+              respuesta.println("Se mostrara la lista de los libros disponibles\n");
+              byteArray = new byte[1024];
+              final File archivoListaLibros = new File("listaLibros");
+              BufferedInputStream entradaArchivo = new BufferedInputStream(new FileInputStream(archivoListaLibros));
+              OutputStream pt = conexion.getOutputStream();
+              while((in = entradaArchivo.read(byteArray)) != -1) {
+                pt.write(byteArray,0,in);
+              }
+
+            }    
           }
+
+          
 
           
           respuesta.printf("Se ha establecido correctamente la conexion con el servidor\n");
