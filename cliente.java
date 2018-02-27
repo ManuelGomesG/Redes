@@ -23,22 +23,19 @@ public class cliente {
 
     try {
       conexion = new Socket(HOST,PUERTO);
-      while(true){
-      Scanner sc = new Scanner(System.in);
-      comando = new PrintStream(conexion.getOutputStream());
-      comando.println(sc.nextLine());
-
-
-
       buffentrada = new InputStreamReader(conexion.getInputStream());
       entrada     = new BufferedReader(buffentrada);
-
-      while((line = entrada.readLine()) != null){
-        System.out.println(line);
+      while(true){
+        buffentrada = new InputStreamReader(conexion.getInputStream());
+        entrada     = new BufferedReader(buffentrada);
+        respuesta   = entrada.readLine().replace("°","\n");
+        System.out.println(respuesta);
+        Scanner sc  = new Scanner(System.in);
+        comando     = new PrintStream(conexion.getOutputStream());
+        comando.println(sc.nextLine());
       }
-    }
     }catch(Exception e){
-      System.out.println("cancer" +e.getMessage());
+      System.out.println("Cliente:" +e.getMessage());
 
     }
 
