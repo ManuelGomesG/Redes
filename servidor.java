@@ -38,7 +38,7 @@ public class servidor {
 
       if (recibido != null) {
         respuesta   = new PrintStream(conexion.getOutputStream());
-        respuesta.printf(menu);
+        respuesta.println(menu);
         }
       }
       }
