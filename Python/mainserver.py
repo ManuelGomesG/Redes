@@ -15,10 +15,12 @@ class ClientThread(Thread):
         while True :
             data = conn.recv(2048)
             print "Server received data:", data
-            MESSAGE = raw_input("Multithreaded Python server : Enter Response from Server/Enter exit:")
-            if MESSAGE == 'exit':
+            #MESSAGE = raw_input("Multithreaded Python server : Enter Response from Server/Enter exit:")
+            if not data:
                 break
-            conn.send(MESSAGE)  # echo
+            if data == 'exit':
+                break
+            #conn.send(MESSAGE)  # echo
 
 # Multithreaded Python server : TCP Server Socket Program Stub
 TCP_IP = '0.0.0.0'
@@ -39,4 +41,4 @@ while True:
     threads.append(newthread)
 
 for t in threads:
-    t.join() 
+    t.join()
