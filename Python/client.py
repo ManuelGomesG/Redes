@@ -1,42 +1,101 @@
-# Python TCP Client A
+
 import socket
+import xmlrpclib
+from threading import Thread
 
-menu = "1) ESTADO_DESCARGAS \n2) LISTA_LIBROS \n3) SOLICITUD <libro> \n4) LIBROS_DESCARGADOSxSERVIDOR"
+
+
+class ClientThread(Thread):
+    def __init__(self,ip,port,conn):
+        Thread.__init__(self)
+        self.ip = ip
+        self.port = port
+        self.soc = conn
+        self.url = "http://localhost:2004"
+        self.client = xmlrpclib.ServerProxy(self.url)
+
+        #print "[+] New server socket thread started for " + ip + ":" + str(port)
+
+
+
+    def run(self):
+        print "Creando hilo para comunicarse con un servidor de descarga"
+        #while True:
+
+        #################################################################
+        ##while True :
+            ##data = conn.recv(2048)
+            ##print "Server received data:", data
+            #MESSAGE = raw_input("Multithreaded Python server : Enter Response from Server/Enter exit:")
+            ##if not data:
+                ##break
+            ##if data == 'exit':
+                ##break
+            #conn.send(MESSAGE)  # echo
+
+
+
+
+
+    def listall(self):
+        return self.client.listallc()
+
+
+
+
+menu = "1) LISTA_LIBROS \n2) SOLICITUD <libro> \n"
+ip="0.0.0.0"
+port=2004
+
+
 def selection(str):
-    if "estado_descargas" in str.lower():
-        print "EligiO ESTADO_DESCARGAS"
 
-    elif "lista_libros" in str.lower():
-        print "EligiO LISTA_LIBROS"
+    if "lista_libros" in str.lower():
+        clienthread = ClientThread(ip,port,0)
+        clienthread.start()
+        l = clienthread.listall()
+        for i in l:
+            print i
+        clienthread.join()
+
 
     elif "solicitud" in str.lower():
-        print "EligiO SOLICITUD"
+        client.send(str)
 
-    elif "libros_descargadosxservidor" in str.lower():
-        print "EligiO LIBROS_DESCARGADOSxSERVIDOR"
+
 
     elif "exit" in str.lower():
-        break
+        client.send(str)
+        pass
 
     else:
         print "Invalid option"
 
         return;
 
+
+
+
+
+
+
+
+'''
 host = socket.gethostname()
+print " HOST : " + host
 port = 2004
 BUFFER_SIZE = 2000
 
-tcpClientA = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-tcpClientA.connect((host, port))
-
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((host, port))
+'''
 
 while True:
     print menu
-    selection(MESSAGE)
     MESSAGE = raw_input()
-    tcpClientA.send(MESSAGE)
-    #data = tcpClientA.recv(BUFFER_SIZE)
+    selection(MESSAGE)
+    #client.send(MESSAGE)
+    #data = client.recv(BUFFER_SIZE)
     #print " Client2 received data:", data
 
-tcpClientA.close()
+client.close()
