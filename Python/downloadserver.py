@@ -3,6 +3,7 @@ import socket
 import sys
 from threading import Thread
 from os import listdir
+import xmlrpclib
 
 
 
@@ -33,10 +34,11 @@ class dServerThread(Thread):
 
 
 
-menu = "1) ESTADO_DESCARGAS \n2) LISTA_LIBROS \n3) SOLICITUD <libro> \n4) LIBROS_DESCARGADOSxSERVIDOR"
+menu = "1) Libros_descargados \n2) Progreso \n3) Clientes "
 def selection(str):
-    if "estado_descargas" in str.lower():
-        pass
+    if "libros_descaragados" in str.lower():
+        client = xmlrpclib.ServerProxy("http://localhost:2004")
+        for i in client.preguntaserv():
     elif "lista_libros" in str.lower():
         dserver.send(str)
         data = dserver.recv(BUFFER_SIZE)

@@ -2,8 +2,12 @@
 import socket
 import xmlrpclib
 from threading import Thread
+import time
 
-
+menu = "1) LISTA_LIBROS \n2) SOLICITUD <libro> \n"
+ip="0.0.0.0"
+port=2004
+listalibros=[]
 
 class ClientThread(Thread):
     def __init__(self,ip,port,conn):
@@ -19,7 +23,7 @@ class ClientThread(Thread):
 
 
     def run(self):
-        print "Creando hilo para comunicarse con un servidor de descarga"
+        pass
         #while True:
 
         #################################################################
@@ -41,35 +45,83 @@ class ClientThread(Thread):
         return self.client.listallc()
 
 
+    def solicitud(self,s):
+        self.client.solicitud(s)
+
+    def recfile(self,name):
+
+        bind = self.client.sendummy("a.pdf")
+        with open(name, "wb") as handle:
+            handle.write(bind.data)
 
 
-menu = "1) LISTA_LIBROS \n2) SOLICITUD <libro> \n"
-ip="0.0.0.0"
-port=2004
+
+
 
 
 def selection(str):
 
     if "lista_libros" in str.lower():
-        clienthread = ClientThread(ip,port,0)
-        clienthread.start()
-        l = clienthread.listall()
-        for i in l:
-            print i
-        clienthread.join()
+        global listalibros
+        if not listalibros:
+            clienthread = ClientThread(ip,port,0)
+            clienthread.start()
+            listalibros = clienthread.listall()
+            for i in listalibros:
+                print i
+            clienthread.join()
+        else:
+            for i in listalibros:
+                print i
 
 
     elif "solicitud" in str.lower():
-        client.send(str)
+        global listalibros
+        libro = str.split(' ',1)[1]
+        if not listalibros:
+            clienthread = ClientThread(ip,port,0)
+            clienthread.start()
+            listalibros = clienthread.listall()
+            time.sleep(.1)
+            clienthread.join()
+        for i in listalibros:
+            if libro.lower() == i.lower():
+                clienthread = ClientThread(ip,port,0)
+                clienthread.start()
+                servers = clienthread.solicitud(libro)
+                #time.sleep(.1)
+                npieces=len(servers)
+                rpclient=[]
+                for i in servers:
+                    rpclient.append(xmlrpclib.ServerProxy("http://localhost:"+str(5000+i)))
+
+                rdata = []
+                print "Empezando descarga"
+                for i in rpclient:
+                    rdata.append(i.download(libro,i,npieces))
+
+                print "Reconstruyendo"
+                with open(libro, "wb") as handle:
+                    for i in rdata:
+                        handle.write(i.data)
+
+                print "Proceso finalizado"
+
+                clienthread.join()
+                return
+        print "Libro invalido"
+
 
 
 
     elif "exit" in str.lower():
-        client.send(str)
-        pass
+        clienthread = ClientThread(ip,port,0)
+        clienthread.start()
+        clienthread.recfile("funciona.pdf")
+
 
     else:
-        print "Invalid option"
+        print "Opcion invalida"
 
         return;
 

@@ -7,8 +7,36 @@ import SimpleXMLRPCServer
 import time
 
 listalibros = []
-menu = "menu placeholder"
+stats = []
+dserverat = [0,0,0]
+menu = "1) Estadisticas_libros \n2) Estadisticas_servidores"
+wthread="guh"
 # Multithreaded Python server : TCP Server Socket Thread Pool
+class WorkerThread(Thread):
+    def __init__(self,n):
+        Thread.__init__(self)
+        self.att=n
+
+    def run(self):
+        pass
+
+    def buildstats(self):
+        global stats
+        global listalibros
+        for i in listalibros:
+            stats.append(0)
+
+    def statact(self,str):
+        global listalibros
+        global stats
+        stats[listalibros.index(str)] = stats[listalibros.index(str)]+1
+        global listas
+        for i in range(0,3):
+            if str in listas[i]:
+                dserverat[i]=dserverat[i]+1
+
+
+
 class ClientThread(Thread):
 
     def __init__(self,ip,port):
@@ -20,6 +48,9 @@ class ClientThread(Thread):
     def run(self):
         mServer=SimpleXMLRPCServer.SimpleXMLRPCServer(("0.0.0.0",2004))
         mServer.register_function(listallc)
+        mServer.register_function(solicitud)
+        mServer.register_function(sendummy)
+
 
         mServer.serve_forever()
 
@@ -50,6 +81,7 @@ class DServerThread(Thread):
 
 
     def run(self):
+        pass
         #print "Creando hilo para comunicarse con un servidor de descarga"
         #while True:
 
@@ -92,6 +124,68 @@ def listallc():
     global listalibros
     return listalibros
 
+
+
+def solicitud(s):
+
+    global listalibros
+    global wthread
+    global listas
+    servers = []
+    for i in listalibros:
+        if s.lower() in i.lower():
+            wthread.statact(i)
+            break
+    for i in range(0,3):
+        if s in listas[i]:
+            servers.append(i+1)
+
+
+    return servers
+
+def sendummy(fname):
+    with open(fname, "rb") as handle:
+        binary_data = xmlrpclib.Binary(handle.read())
+
+    return binary_data
+
+
+
+
+def selection(str):
+
+    if "estadisticas_libros" in str.lower():
+        global listalibros
+        global stats
+        print "Cantidad -- Libro"
+        for i in range(0,len(listalibros)):
+            print stats[i], " -- ", listalibros[i]
+
+
+
+
+    elif "estadisticas_servidores" in str.lower():
+        global dserverat
+        print "       Servidor        -- Cantidad"
+
+        print "Servidor de descarga 1 -- ", dserverat[0]
+        print "Servidor de descarga 2 -- ", dserverat[1]
+        print "Servidor de descarga 3 -- ", dserverat[2]
+
+
+
+
+
+    elif "exit" in str.lower():
+        client.send(str)
+        pass
+
+    else:
+        print "Opcion invalida"
+
+        return;
+
+
 # Multithreaded Python server : TCP Server Socket Program Stub
 TCP_IP = '0.0.0.0'
 TCP_PORT = 2004
@@ -109,6 +203,8 @@ cthreads = [] #threads de clientes
 sthreads = [] #threads de servidores de descarga
 controlthreads = [] #Threads que manejan el flujo del programa
 listas = []
+wthread = WorkerThread(1)
+wthread.start()
 
 
 for i in range(0,3):
@@ -119,10 +215,11 @@ for i in range(0,3):
 time.sleep(.1)
 for i in range(0,3):
     listas.append(sthreads[i].list())
-
+#generando las listas para las estadisticas
 listalibros = listall(listas[0],listas[1],listas[2])
+wthread.buildstats()
 
-print str(listalibros)
+print str(stats)
 
 cserverthread = ClientThread(TCP_IP,TCP_PORT)
 cserverthread.start()
@@ -143,10 +240,18 @@ for t in sthreads:
     t.sendmsg(t.getName())
 
 '''
+print "SOLICITUD"
+solicitud("b")
+
+
+
+
+
 
 while True:
     print menu
     MESSAGE = raw_input()
+    selection(MESSAGE)
 
     #tcpServer.listen(4)
     #print "Multithreaded Python server : Waiting for connections from TCP clients..."
